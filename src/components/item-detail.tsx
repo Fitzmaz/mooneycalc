@@ -1,5 +1,5 @@
 import React from "react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { itemName } from "~/services/items";
 import { useMarket } from "~/services/market";
 
@@ -12,14 +12,16 @@ export const ItemDetail = ({ hrid }: ItemDetailProps) => {
   const name = itemName(hrid);
 
   return (
-    <HoverCard openDelay={0} closeDelay={0}>
-      <HoverCardTrigger>{name}</HoverCardTrigger>
-      <HoverCardContent side="right" sideOffset={16}>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button>{name}</button>
+      </PopoverTrigger>
+      <PopoverContent>
         <h3 className="pb-1 text-muted-foreground">{name}</h3>
         <p>Ask: {market.market[name]?.ask}</p>
         <p>Bid: {market.market[name]?.bid}</p>
-      </HoverCardContent>
-    </HoverCard>
+      </PopoverContent>
+    </Popover>
   );
 };
 
