@@ -9,6 +9,8 @@ import {
   getSortedRowModel,
   type VisibilityState,
   getFilteredRowModel,
+  type Column,
+  type Table as TableType
 } from "@tanstack/react-table";
 import React from "react";
 
@@ -27,6 +29,11 @@ interface DataTableProps<TData, TValue> {
   initialSorting?: SortingState;
 }
 
+interface FilterProps<TData> {
+  column: Column<TData, unknown>;
+  table: TableType<TData>;
+};
+
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -39,12 +46,12 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>({});
 
   // Dropdown filter for selecting column values
-  const ColumnSelectFilter = ({ column, table }) => {
+  const ColumnSelectFilter = ({ column, table }: FilterProps<TData>) => {
     // Get unique values for this column
     const uniqueValues = React.useMemo(
       () => {
         const preFilteredRows = table.getPreFilteredRowModel().flatRows;
-        const values = new Set(preFilteredRows.map(row => row.getValue(column.id)));
+        const values = new Set(preFilteredRows.map(row => row.getValue(column.id ?? '')));
         return [...values]; // Convert Set to Array for the dropdown
       },
       [column.id, table]
@@ -52,13 +59,13 @@ export function DataTable<TData, TValue>({
 
     return (
       <select
-        value={column.getFilterValue() ?? ''}
+        value={String(column.getFilterValue()) ?? ''}
         onChange={(e) => column.setFilterValue(e.target.value || undefined)} // Set undefined to remove the filter
       >
         <option value="">All</option>
         {uniqueValues.map((value, index) => (
-          <option key={index} value={value}>
-            {value}
+          <option key={index} value={String(value)}>
+            {String(value)}
           </option>
         ))}
       </select>
