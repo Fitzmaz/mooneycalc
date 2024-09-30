@@ -8,6 +8,7 @@ import {
   type SortingState,
   getSortedRowModel,
   type VisibilityState,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import React from "react";
 
@@ -37,6 +38,33 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
+  // Dropdown filter for selecting column values
+  const ColumnSelectFilter = ({ column, table }) => {
+    // Get unique values for this column
+    const uniqueValues = React.useMemo(
+      () => {
+        const preFilteredRows = table.getPreFilteredRowModel().flatRows;
+        const values = new Set(preFilteredRows.map(row => row.getValue(column.id)));
+        return [...values]; // Convert Set to Array for the dropdown
+      },
+      [column.id, table]
+    );
+
+    return (
+      <select
+        value={column.getFilterValue() ?? ''}
+        onChange={(e) => column.setFilterValue(e.target.value || undefined)} // Set undefined to remove the filter
+      >
+        <option value="">All</option>
+        {uniqueValues.map((value, index) => (
+          <option key={index} value={value}>
+            {value}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
   const table = useReactTable({
     data,
     columns,
@@ -44,6 +72,7 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       columnVisibility,
@@ -65,6 +94,9 @@ export function DataTable<TData, TValue>({
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
+                    {header.column.columnDef.filterFn !== 'auto' && (
+                      <ColumnSelectFilter column={header.column} table={table} />
+                    )}
                   </TableHead>
                 );
               })}

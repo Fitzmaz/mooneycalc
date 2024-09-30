@@ -21,6 +21,7 @@ export const columns: ColumnDef<ComputedAction>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Skill" />
     ),
+    filterFn: 'equals',
     cell: ({ row }) => <div>{skillName(row.original.skillHrid)}</div>,
   },
   {
